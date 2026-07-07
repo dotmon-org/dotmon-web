@@ -49,6 +49,7 @@ export default function App() {
 
   const opts = useMemo(() => optsFor(preset, tweaks), [preset, tweaks]);
   const bg = bgTrans ? "transparent" : bgColor;
+  const coarsePointer = useMemo(() => window.matchMedia("(pointer: coarse)").matches, []);
   const favorites = useFavorites();
   const nameHistory = useNameHistory();
   useSyncSeedUrl(seed);
@@ -219,7 +220,7 @@ export default function App() {
           opts={player.opts ?? opts}
           x0={player.x}
           y0={player.y}
-          hint={t.playerHint}
+          hint={coarsePointer ? t.playerHintTouch : t.playerHint}
           onDismiss={() => setPlayer(null)}
         />
       )}
