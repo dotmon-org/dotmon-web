@@ -45,9 +45,9 @@ export default function ViewsDialog({ target, bg, locale, t, dict, onClose }: Pr
     [target],
   );
 
-  // スタイルごとに、こだわり設定でユーザーが操作できる項目だけを表示する
-  // （もちもち: ふちどり/かお/あし、レトロ: ふちどり/かお/すきまなくし、カオス: すきまなくし。
-  //  プリセットに合致しない組み合わせ=customは全項目を表示）
+  // Show only the options the user can control for this style in the options panel
+  // (mochi: outline/face/legs, retro: outline/face/gapFill, chaos: gapFill).
+  // Combinations that match no preset (= custom) show every row
   const presetKey = target ? presetKeyFromOpts(target.opts) : "custom";
   const items = target
     ? [
