@@ -45,12 +45,16 @@ export default function ViewsDialog({ target, bg, locale, t, dict, onClose }: Pr
     [target],
   );
 
+  // スタイルごとに、こだわり設定でユーザーが操作できる項目だけを表示する
+  // （もちもち: ふちどり/かお/あし、レトロ: ふちどり/かお/すきまなくし、カオス: すきまなくし。
+  //  プリセットに合致しない組み合わせ=customは全項目を表示）
+  const presetKey = target ? presetKeyFromOpts(target.opts) : "custom";
   const items = target
     ? [
         [t.styleSection, presetLabel(target.opts, t, dict)],
-        [t.outline, onOff(target.opts.outline, t)],
-        [t.face, onOff(target.opts.face, t)],
-        [t.legsLabel, dict.legs[drawn]],
+        ...(presetKey !== "chaos" ? [[t.outline, onOff(target.opts.outline, t)], [t.face, onOff(target.opts.face, t)]] : []),
+        ...(presetKey === "mochi" || presetKey === "custom" ? [[t.legsLabel, dict.legs[drawn]]] : []),
+        ...(presetKey !== "mochi" ? [[t.gapFill, onOff(target.opts.gapFill, t)]] : []),
       ]
     : [];
 
