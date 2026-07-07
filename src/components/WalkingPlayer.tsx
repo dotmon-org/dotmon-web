@@ -19,11 +19,18 @@ interface Props {
   onDismiss: () => void;
 }
 
+// バーチャルスティック: タップ位置が基部になり、そこからのドラッグ量で移動方向・速さが決まる
+const STICK_RADIUS = 48;
+const STICK_DEADZONE = 10;
+
 export default function WalkingPlayer({ seed, opts, x0, y0, hint, onDismiss }: Props) {
   const elRef = useRef<HTMLDivElement>(null);
+  const baseRef = useRef<HTMLDivElement>(null);
+  const knobRef = useRef<HTMLDivElement>(null);
   const st = useRef({
     x: x0, y: y0, dir: "front" as View, moving: false, walkFrame: 0,
     walkTimer: 0, keys: new Set<string>(), last: 0, curSvg: "",
+    stick: null as { id: number; cx: number; cy: number; vx: number; vy: number } | null,
   });
 
   const optsKey = JSON.stringify(opts);
@@ -60,21 +67,27 @@ export default function WalkingPlayer({ seed, opts, x0, y0, hint, onDismiss }: P
     const tick = (tms: number) => {
       const dt = Math.min(50, tms - s.last);
       s.last = tms;
-      let dx = 0, dy = 0;
-      if (s.keys.has("left")) dx -= 1;
-      if (s.keys.has("right")) dx += 1;
-      if (s.keys.has("up")) dy -= 1;
-      if (s.keys.has("down")) dy += 1;
-      const moving = dx !== 0 || dy !== 0;
+      // キー入力（±1）とスティック（-1..1のアナログ）を同じ速度ベクトルとして扱う
+      let vx = 0, vy = 0;
+      if (s.keys.has("left")) vx -= 1;
+      if (s.keys.has("right")) vx += 1;
+      if (s.keys.has("up")) vy -= 1;
+      if (s.keys.has("down")) vy += 1;
+      if (vx && vy) {
+        vx *= Math.SQRT1_2;
+        vy *= Math.SQRT1_2;
+      }
+      if (!vx && !vy && s.stick) {
+        vx = s.stick.vx;
+        vy = s.stick.vy;
+      }
+      const moving = vx !== 0 || vy !== 0;
       if (moving) {
-        if (dx < 0) s.dir = "left";
-        else if (dx > 0) s.dir = "right";
-        else if (dy < 0) s.dir = "back";
-        else s.dir = "front";
+        if (Math.abs(vx) >= Math.abs(vy)) s.dir = vx < 0 ? "left" : "right";
+        else s.dir = vy < 0 ? "back" : "front";
         const spd = 0.16 * dt;
-        const norm = dx && dy ? Math.SQRT1_2 : 1;
-        s.x = Math.min(Math.max(s.x + dx * spd * norm, 0), window.innerWidth - 64);
-        s.y = Math.min(Math.max(s.y + dy * spd * norm, 0), window.innerHeight - 64);
+        s.x = Math.min(Math.max(s.x + vx * spd, 0), window.innerWidth - 64);
+        s.y = Math.min(Math.max(s.y + vy * spd, 0), window.innerHeight - 64);
         s.walkTimer += dt;
         if (s.walkTimer > 180) {
           s.walkTimer = 0;
@@ -115,9 +128,59 @@ export default function WalkingPlayer({ seed, opts, x0, y0, hint, onDismiss }: P
     };
   }, [sprites, onDismiss]);
 
+  // ---- バーチャルスティック（タッチ端末のみ。#stickzone はpointer:coarse時だけ反応する） ----
+  const stickDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse") return;
+    const s = st.current;
+    if (s.stick) return; // 2本目の指は無視
+    s.stick = { id: e.pointerId, cx: e.clientX, cy: e.clientY, vx: 0, vy: 0 };
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* 合成イベント等でcaptureできなくても動作は継続できる */
+    }
+    const base = baseRef.current!;
+    base.style.left = `${e.clientX}px`;
+    base.style.top = `${e.clientY}px`;
+    base.style.display = "block";
+    knobRef.current!.style.transform = "translate(0px, 0px)";
+  };
+  const stickMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const s = st.current;
+    if (!s.stick || e.pointerId !== s.stick.id) return;
+    let ox = e.clientX - s.stick.cx;
+    let oy = e.clientY - s.stick.cy;
+    const d = Math.hypot(ox, oy);
+    if (d > STICK_RADIUS) {
+      ox *= STICK_RADIUS / d;
+      oy *= STICK_RADIUS / d;
+    }
+    knobRef.current!.style.transform = `translate(${ox}px, ${oy}px)`;
+    // 倒し量に応じたアナログ速度（クランプ済みオフセット/半径 = 長さ0..1のベクトル）
+    const dead = d < STICK_DEADZONE;
+    s.stick.vx = dead ? 0 : ox / STICK_RADIUS;
+    s.stick.vy = dead ? 0 : oy / STICK_RADIUS;
+  };
+  const stickUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const s = st.current;
+    if (!s.stick || e.pointerId !== s.stick.id) return;
+    s.stick = null;
+    baseRef.current!.style.display = "none";
+  };
+
   return createPortal(
     <>
+      <div
+        id="stickzone"
+        onPointerDown={stickDown}
+        onPointerMove={stickMove}
+        onPointerUp={stickUp}
+        onPointerCancel={stickUp}
+      />
       <div id="player" ref={elRef} onClick={onDismiss} />
+      <div id="stickbase" ref={baseRef}>
+        <div id="stickknob" ref={knobRef} />
+      </div>
       <div id="playhint">{hint}</div>
     </>,
     document.body,

@@ -154,6 +154,11 @@
 
   #player { position: fixed; top: 0; left: 0; width: 64px; height: 64px; z-index: 50; cursor: pointer; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4)); }
   #player svg { width: 100%; height: 100%; display: block; }
+  /* バーチャルスティック: タッチ端末でのみ画面全体が入力ゾーンになる（デスクトップは素通し） */
+  #stickzone { position: fixed; inset: 0; z-index: 49; pointer-events: none; touch-action: none; }
+  @media (pointer: coarse) { #stickzone { pointer-events: auto; } }
+  #stickbase { display: none; position: fixed; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 2px solid rgba(232, 232, 242, 0.4); background: rgba(232, 232, 242, 0.08); z-index: 52; pointer-events: none; }
+  #stickknob { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: rgba(232, 232, 242, 0.5); }
   #playhint { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); background: rgba(16, 16, 31, 0.88); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 11px; padding: 6px 12px; z-index: 51; pointer-events: none; white-space: nowrap; }
 
 /* React版追加: 初期描画前のちらつき防止 */

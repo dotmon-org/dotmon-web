@@ -51,6 +51,7 @@ export const STRINGS = {
     close: "Close",
     monTitle: "Click to see all views",
     playerHint: "Arrow keys / WASD to move · Esc or click to return",
+    playerHintTouch: "Drag anywhere to move · Tap your monster to return",
     helpItems: [
       "Type a name and hit Generate — a monster unique to that name is born. The same name always gives you the same one.",
       "Styles (Mochi / Retro / Chaos) and Options change the look.",
@@ -106,6 +107,7 @@ export const STRINGS = {
     close: "閉じる",
     monTitle: "クリックですがたを見る",
     playerHint: "矢印キー / WASD で移動 · Esc かクリックで帰る",
+    playerHintTouch: "画面をドラッグで移動 · キャラをタップで帰る",
     helpItems: [
       "なまえを入れて「うまれる」を押すと、その名前だけのモンスターがうまれます。おなじ名前からは、いつでもおなじ子がうまれます",
       "スタイル（もちもち / レトロ / カオス）と こだわり設定 で、見た目をきせかえできます",
