@@ -69,11 +69,9 @@ export default function ViewsDialog({ target, bg, locale, t, dict, onClose }: Pr
             </span>
             <button className="dl" title={t.close} aria-label={t.close} onClick={() => ref.current!.close()}>✕</button>
           </div>
-          <ul className="vopts">
-            {items.map(([k, v]) => (
-              <li key={k}>{k}: {v}</li>
-            ))}
-          </ul>
+          <div className="vstats">
+            <StatsPanel seed={target.seed} opts={target.opts} dict={dict} />
+          </div>
           <div className="vgrid">
             {VIEWS.map((v) => (
               <div className="vtile" key={v}>
@@ -96,9 +94,11 @@ export default function ViewsDialog({ target, bg, locale, t, dict, onClose }: Pr
               </div>
             ))}
           </div>
-          <div className="vstats">
-            <StatsPanel seed={target.seed} opts={target.opts} dict={dict} />
-          </div>
+          <ul className="vopts">
+            {items.map(([k, v]) => (
+              <li key={k}>{k}: {v}</li>
+            ))}
+          </ul>
           <div className="btnrow" style={{ marginTop: 14 }}>
             <button
               className="primary"
