@@ -181,6 +181,7 @@ export default function App() {
                     onPng={() => downloadPng(s, opts, "front", 256, bg)}
                     onGif={() => downloadGif(s, opts, "front", 256, bg)}
                     onPlay={(rect) => spawnPlayer(s, null, rect)}
+                    onShare={() => buildShareUrl(s, preset, tweaks)}
                   />
                 ))}
               </div>

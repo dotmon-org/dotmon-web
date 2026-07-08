@@ -1,6 +1,7 @@
 import type { ResolvedOpts } from "@dotmon/core";
 import type { Strings } from "../i18n";
 import type { Fav } from "../hooks/useFavorites";
+import { buildShareUrlFromOpts } from "../lib/shareUrl";
 import MonsterCell from "./MonsterCell";
 
 interface Props {
@@ -50,6 +51,7 @@ export default function FavoritesSection(p: Props) {
               onPng={() => p.onPng(f.seed, fo)}
               onGif={() => p.onGif(f.seed, fo)}
               onPlay={(rect) => p.onPlay(f.seed, f.opts, rect)}
+              onShare={() => buildShareUrlFromOpts(f.seed, fo)}
             />
           );
         })}
