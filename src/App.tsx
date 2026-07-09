@@ -233,7 +233,7 @@ export default function App() {
               t={t}
               onToggle={favorites.toggle}
               onClear={favorites.clear}
-              onMove={favorites.move}
+              onSwap={favorites.swap}
               onOpen={(s, o) => setViewsTarget({ seed: s, opts: o })}
               onPng={(s, o) => downloadPng(s, o, "front", 256, bg)}
               onGif={(s, o) => downloadGif(s, o, "front", 256, bg)}
