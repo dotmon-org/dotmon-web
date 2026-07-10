@@ -18,7 +18,7 @@ interface Props {
   t: Strings;
   onToggle: (seed: string, opts: ResolvedOpts | null) => void;
   onClear: () => void;
-  onMove: (from: number, to: number) => void;
+  onSwap: (a: number, b: number) => void;
   onOpen: (seed: string, opts: ResolvedOpts) => void;
   onPng: (seed: string, opts: ResolvedOpts) => void;
   onGif: (seed: string, opts: ResolvedOpts) => void;
@@ -26,8 +26,8 @@ interface Props {
 }
 
 // iPhone-home-screen style reordering: long-press a favorite to enter reorder
-// mode (cells wiggle, other actions are disabled), drag to move, exit with the
-// done button or Esc
+// mode (cells wiggle, other actions are disabled), drag onto another favorite to
+// SWAP the two, exit with the done button or Esc
 const LONG_PRESS_MS = 500;
 const MOVE_CANCEL_PX = 8;
 const FLOAT_SIZE = 88;
@@ -35,12 +35,13 @@ const FLOAT_SIZE = 88;
 export default function FavoritesSection(p: Props) {
   const [reorder, setReorder] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [targetIdx, setTargetIdx] = useState<number | null>(null);
   const [zipProgress, setZipProgress] = useState<[number, number] | null>(null);
   const floatRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ idx: number; id: number; x: number; y: number } | null>(null);
   const pressRef = useRef<{ timer: ReturnType<typeof setTimeout>; x: number; y: number } | null>(null);
-  const onMoveRef = useRef(p.onMove);
-  onMoveRef.current = p.onMove;
+  const onSwapRef = useRef(p.onSwap);
+  onSwapRef.current = p.onSwap;
 
   const clearPress = () => {
     if (pressRef.current) {
@@ -62,32 +63,37 @@ export default function FavoritesSection(p: Props) {
   const endDrag = useCallback(() => {
     dragRef.current = null;
     setDragIdx(null);
+    setTargetIdx(null);
   }, []);
+
+  // The favorite slot currently under (x, y), or null when over none
+  const slotAt = (x: number, y: number): number | null => {
+    const el = (document.elementFromPoint(x, y) as HTMLElement | null)?.closest?.("[data-favslot]") as HTMLElement | null;
+    return el ? Number(el.dataset.favslot) : null;
+  };
 
   const exitReorder = useCallback(() => {
     endDrag();
     setReorder(false);
   }, [endDrag]);
 
-  // Document-level listeners while dragging, so re-renders from live
-  // reordering can't drop the pointer stream
+  // Document-level listeners while dragging. The list does NOT reorder during
+  // the drag; we only highlight the hovered slot, then swap the picked-up index
+  // with the drop target on release — so any two cells trade places cleanly,
+  // regardless of the drag path (a plain splice-insert would shift the cells in
+  // between, which reads as a swap only for left/right neighbours).
   const dragging = dragIdx !== null;
   useEffect(() => {
     if (!dragging) return;
     const last = { x: dragRef.current?.x ?? 0, y: dragRef.current?.y ?? 0 };
     positionFloat(last.x, last.y);
+    // The float is pointer-events:none, so slotAt() hits the cell below it
     const retarget = () => {
-      // The float itself is pointer-events:none, so this hits the slot below
-      const slot = (document.elementFromPoint(last.x, last.y) as HTMLElement | null)?.closest?.("[data-favslot]") as HTMLElement | null;
       const d = dragRef.current;
-      if (!slot || !d) return;
-      const to = Number(slot.dataset.favslot);
-      if (to !== d.idx) {
-        onMoveRef.current(d.idx, to);
-        d.idx = to;
-        setDragIdx(to);
-      }
+      const to = slotAt(last.x, last.y);
+      setTargetIdx(d && to !== null && to !== d.idx ? to : null);
     };
+    retarget();
     const move = (e: PointerEvent) => {
       if (dragRef.current?.id !== e.pointerId) return;
       last.x = e.clientX;
@@ -97,6 +103,10 @@ export default function FavoritesSection(p: Props) {
     };
     const up = (e: PointerEvent) => {
       if (dragRef.current?.id !== e.pointerId) return;
+      const d = dragRef.current;
+      // Drop lands where the pointer is released
+      const to = slotAt(e.clientX, e.clientY);
+      if (d && to !== null && to !== d.idx) onSwapRef.current(d.idx, to);
       endDrag();
     };
     // Blocks page scroll during a touch drag, including the drag that starts
@@ -232,7 +242,7 @@ export default function FavoritesSection(p: Props) {
           return (
             <div
               key={f.seed + "|" + JSON.stringify(f.opts)}
-              className={"favslot" + (reorder && dragIdx === i ? " ghost" : "")}
+              className={"favslot" + (dragIdx === i ? " ghost" : "") + (targetIdx === i ? " swaptarget" : "")}
               data-favslot={i}
               onPointerDown={slotDown(i)}
               onPointerMove={slotMove}

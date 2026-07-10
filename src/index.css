@@ -171,6 +171,8 @@
   .grid.reordering .favslot .cell { animation: favwiggle 0.35s ease-in-out infinite; }
   .grid.reordering .favslot:nth-child(2n) .cell { animation-delay: 0.18s; }
   .favslot.ghost .cell { opacity: 0.35; }
+  /* The cell the dragged favorite will swap with */
+  .favslot.swaptarget .cell { outline: 2px solid var(--acid); outline-offset: 1px; animation: none; box-shadow: 0 0 0 4px rgba(184, 245, 66, 0.18); }
   @keyframes favwiggle { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
   @media (prefers-reduced-motion: reduce) { .grid.reordering .favslot .cell { animation: none; } }
   #favfloat { position: fixed; top: 0; left: 0; width: 88px; height: 88px; z-index: 70; pointer-events: none; border: 1px solid var(--line); border-radius: 8px; padding: 7px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5); }
