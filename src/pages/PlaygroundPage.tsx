@@ -12,7 +12,6 @@ import MainPreview from "../components/MainPreview";
 import MonsterCell from "../components/MonsterCell";
 import NameForm from "../components/NameForm";
 import Sidebar, { type Tweaks } from "../components/Sidebar";
-import ToastHost from "../components/Toast";
 import ViewsDialog, { type ViewsTarget } from "../components/ViewsDialog";
 import WalkingPlayer from "../components/WalkingPlayer";
 import { useFavorites } from "../hooks/useFavorites";
@@ -290,7 +289,6 @@ export default function PlaygroundPage() {
         onClose={() => setViewsTarget(null)}
       />
       <HelpDialog open={helpOpen} t={t} onClose={() => setHelpOpen(false)} />
-      <ToastHost />
 
       {player && (
         <WalkingPlayer

@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useOutletContext } from "react-router-dom";
 import { useLocale } from "../i18n";
 import { focusRing } from "../lib/ui";
+import ToastHost from "./Toast";
 
 /** Locale bundle shared with pages through the router outlet */
 export type LocaleCtx = ReturnType<typeof useLocale>;
@@ -83,6 +84,7 @@ export default function Layout() {
           npm
         </a>
       </footer>
+      <ToastHost />
     </div>
   );
 }
