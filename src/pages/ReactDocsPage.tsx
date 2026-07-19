@@ -40,8 +40,7 @@ interface OptField {
 
 const COPY = {
   en: {
-    intro:
-      "Render deterministic pixel monsters straight from any string. The same seed always produces the same monster — no storage, no network.",
+    intro: "A component you can use in React.",
     copy: "Copy code",
     installNote:
       "Zero dependencies. React 18 or newer (only the react entry point needs React).",
@@ -81,8 +80,7 @@ const COPY = {
       "Need more than a rendered avatar? useMonster returns the cached generator behind MonsterAvatar — raw SVG strings and name-derived stats. useMonsterTicker exposes the shared walk frame.",
   },
   ja: {
-    intro:
-      "文字列ひとつから、決定論的にドット絵モンスターを描画します。おなじ seed からは、いつでもおなじモンスターがうまれます — 保存も通信も不要です。",
+    intro: "React でつかえるコンポーネントを用意しています。",
     copy: "コードをコピー",
     installNote:
       "依存ライブラリはゼロ。React 18 以上が必要です（React が必要なのは react エントリポイントだけです）。",

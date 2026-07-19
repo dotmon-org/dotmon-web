@@ -17,7 +17,7 @@ interface OptGroup {
 const COPY = {
   en: {
     intro:
-      "The same monsters, straight in your terminal. One npx command draws colored half-block sprites — with stat cards, walk animations, and game-ready asset exports.",
+      "Make a monster anytime in your terminal too — with a single npx command.",
     copy: "Copy command",
     runDesc:
       "No install step — npx runs it directly. The name is the seed, so the same name gives you the same monster as the web app.",
@@ -86,8 +86,7 @@ npx dottomon Poko -o poko.png --size 1024
 npx dottomon Poko --zip               # every asset in one ZIP`,
   },
   ja: {
-    intro:
-      "おなじモンスターを、ターミナルでそのまま。npx コマンドひとつで色付きスプライトを描画 — ステータスカード・歩行アニメ・ゲーム用アセット出力もできます。",
+    intro: "ターミナルでも npx コマンドひとつでいつでもモンスターを作れます。",
     copy: "コマンドをコピー",
     runDesc:
       "インストール不要で npx からそのまま実行できます。名前が seed になるので、おなじ名前からは Web アプリと同じモンスターがうまれます。",
